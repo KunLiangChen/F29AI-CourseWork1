@@ -3,28 +3,24 @@ from collections import deque
 from .heuristics import NEIGHBORS
 
 def forward_checking(domains, var, value):
-    """
-    Apply forward checking after assigning value to var.
-    domains: dict (r,c)->set
-    var: (r,c)
-    value: int
-    Returns:
-        inferences: dict of {cell: removed_values_set} so they can be restored
-        If a domain becomes empty -> return None (failure)
-    """
     inferences = {}
+    affected = []
+
     for n in NEIGHBORS[var]:
         if value in domains.get(n, set()):
-            # record removal
             removed = inferences.setdefault(n, set())
-            # avoid double removing same value
-            if value not in removed:
-                removed.add(value)
-                domains[n] = domains[n] - {value}
-                if len(domains[n]) == 0:
-                    # failure, must restore outside
-                    return None
+            removed.add(value)
+            domains[n] = domains[n] - {value}
+            affected.append(n)
+
+            if len(domains[n]) == 0:
+                # restore before returning failure
+                for cell in affected:
+                    domains[cell] = domains[cell].union(inferences[cell])
+                return None
+
     return inferences
+
 
 def restore_inferences(domains, inferences):
     """

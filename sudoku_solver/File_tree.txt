@@ -29,9 +29,9 @@ sudoku_solver/
 │
 ├── utils/                           # 通用工具模块
 │   ├── __init__.py
-│   ├── file_io.py                   # 读取/写入 .txt 或 .csv 文件
-│   ├── timer.py                     # 性能计时装饰器
-│   └── logger.py                    # 日志记录（调试、事件输出）
+│   ├── file_io.py    (完成)               # 读取/写入 .txt 或 .csv 文件
+│   ├── timer.py      （完成）               # 性能计时装饰器
+│   └── logger.py     （完成）               # 日志记录（调试、事件输出）
 │
 └── tests/                           # 单元测试目录
     ├── test_csp_solver.py  (完成)

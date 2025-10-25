@@ -1,0 +1,43 @@
+/* gui/styles.qss - dark modern theme */
+QWidget {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: "Segoe UI", "Helvetica Neue", "Arial";
+}
+
+QPushButton {
+    background-color: #1f2933;
+    color: #e7eef6;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid #2b3942;
+}
+
+QPushButton:hover {
+    background-color: #2b3942;
+}
+
+QPushButton:pressed {
+    background-color: #162027;
+}
+
+QLabel {
+    color: #cbd5e1;
+}
+
+QCheckBox {
+    color: #cbd5e1;
+}
+
+QSlider::groove:horizontal {
+    height: 6px;
+    background: #2b3942;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    width: 14px;
+    background: #60a5fa;
+    margin: -5px 0;
+    border-radius: 7px;
+}

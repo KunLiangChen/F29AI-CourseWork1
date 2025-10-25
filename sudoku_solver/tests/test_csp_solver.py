@@ -45,17 +45,7 @@ def load_board_from_file(path):
 def test_easy_sudoku(tmp_path):
     """测试一个简单数独能被快速解出"""
     # 构造一个简单可解的棋盘
-    grid = [
-        [5, 3, 0, 0, 7, 0, 0, 0, 0],
-        [6, 0, 0, 1, 9, 5, 0, 0, 0],
-        [0, 9, 8, 0, 0, 0, 0, 6, 0],
-        [8, 0, 0, 0, 6, 0, 0, 0, 3],
-        [4, 0, 0, 8, 0, 3, 0, 0, 1],
-        [7, 0, 0, 0, 2, 0, 0, 0, 6],
-        [0, 6, 0, 0, 0, 0, 2, 8, 0],
-        [0, 0, 0, 4, 1, 9, 0, 0, 5],
-        [0, 0, 0, 0, 8, 0, 0, 7, 9],
-    ]
+    grid = load_board_from_file("data/easy.txt")
     board = SudokuBoard(grid)
     solver = CSPSolver(board, use_mrv=True, use_lcv=True, use_fc=True)
     solved = solver.solve()

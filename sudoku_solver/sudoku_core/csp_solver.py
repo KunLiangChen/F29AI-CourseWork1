@@ -95,8 +95,6 @@ class CSPSolver:
 
         var = select_unassigned_variable(self.domains, self.assigned,
                                          use_mrv=self.use_mrv, use_degree=True)
-        if var is None:
-            return True
 
         for value in order_domain_values(var, self.domains, use_lcv=self.use_lcv):
             # check consistency quickly using board.is_valid
