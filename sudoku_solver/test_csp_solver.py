@@ -42,7 +42,7 @@ def load_board_from_file(path):
 # 测试用例
 # ------------------------------------------------------------
 
-def test_easy_sudoku(tmp_path):
+def test_easy_sudoku():
     """测试一个简单数独能被快速解出"""
     # 构造一个简单可解的棋盘
     board = load_board_from_file("data/easy.txt")
@@ -115,3 +115,5 @@ def test_unsolvable_case():
 
     # 理论上无法求解
     assert not solved, "无解数独不应被解出"
+
+test_easy_sudoku()

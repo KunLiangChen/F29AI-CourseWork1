@@ -51,6 +51,21 @@ class CSPSolver:
         if self.use_ac3:
             ac3(self.domains)
 
+    def _is_initial_board_valid(self):
+        """Check whether current board violates Sudoku constraints."""
+        grid = self.board.grid
+        for r in range(9):
+            for c in range(9):
+                val = grid[r, c]
+                if val != 0:
+                    # 临时清空当前格，检查是否仍合法
+                    grid[r, c] = 0
+                    if not self.board.is_valid(r, c, val):
+                        grid[r, c] = val  # 恢复
+                        return False
+                    grid[r, c] = val  # 恢复
+        return True
+
     def _init_domains(self):
         """Initialize domains from board state."""
         for r in range(9):
@@ -84,6 +99,8 @@ class CSPSolver:
     def solve(self):
         """Public entry point. Returns True if solved."""
         self.metrics.start()
+        if not self._is_initial_board_valid():
+            return False
         success = self._backtrack()
         self.metrics.stop()
         return success
@@ -92,7 +109,8 @@ class CSPSolver:
         # goal test
         if len(self.assigned) == 81:
             return True
-
+        
+        
         var = select_unassigned_variable(self.domains, self.assigned,
                                          use_mrv=self.use_mrv, use_degree=True)
 
