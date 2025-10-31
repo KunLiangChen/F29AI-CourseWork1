@@ -1,8 +1,18 @@
 # gui/board_widget.py
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
-from PyQt5.QtGui import QFont, QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QItemDelegate, QLineEdit
+from PyQt5.QtGui import QFont, QColor, QBrush, QPainter, QPen, QRegExpValidator
+from PyQt5.QtCore import Qt, QRegExp
 import numpy as np
+
+class DigitDelegate(QItemDelegate):
+    """Delegate that restricts input to a single digit 1-9."""
+    def createEditor(self, parent, option, index):
+        editor = QLineEdit(parent)
+        editor.setMaxLength(1)
+        validator = QRegExpValidator(QRegExp("^[1-9]$"), parent)
+        editor.setValidator(validator)
+        return editor
 
 class BoardWidget(QTableWidget):
     def __init__(self, parent=None):
@@ -17,6 +27,8 @@ class BoardWidget(QTableWidget):
         self.verticalHeader().setVisible(False)
         self.setFont(QFont("Consolas", 18))
         self.setFocusPolicy(Qt.StrongFocus)
+        # apply digit-only delegate for all cells
+        self.setItemDelegate(DigitDelegate(self))
         for r in range(9):
             self.setRowHeight(r, 60)
             for c in range(9):
@@ -28,7 +40,7 @@ class BoardWidget(QTableWidget):
         self._apply_grid_lines()
 
     def _apply_grid_lines(self):
-        # set thicker grid lines for 3x3 boxes using stylesheet
+        # keep thin cell borders via stylesheet; thicker 3x3 separators drawn in paintEvent
         self.setStyleSheet("""
         QTableWidget::item { border: 1px solid #333; color: #ddd; background: #222; }
         QTableWidget { gridline-color: #444; }
@@ -42,13 +54,14 @@ class BoardWidget(QTableWidget):
                 if txt == "" or txt == ".":
                     grid[r, c] = 0
                 else:
-                    # accept only first digit 1-9
+                    # accept only first digit in 1-9
                     val = 0
                     for ch in txt:
-                        if ch.isdigit():
+                        if ch in "123456789":
                             val = int(ch)
                             break
-                    if val < 0 or val > 9:
+                    # only accept 1-9; anything else -> 0
+                    if not (1 <= val <= 9):
                         val = 0
                     grid[r, c] = val
         return grid
@@ -93,3 +106,29 @@ class BoardWidget(QTableWidget):
         if highlight:
             r, c = highlight
             self.highlight_cell(r, c)
+
+    def paintEvent(self, event):
+        # 先由基类绘制表格与单元格
+        super().paintEvent(event)
+
+        # 在 viewport 上绘制粗线（不影响表头）
+        painter = QPainter(self.viewport())
+        pen = QPen(QColor(170, 170, 170))
+        pen.setWidth(3)
+        painter.setPen(pen)
+
+        # 垂直粗线：在第 2 和 5 列之后绘制
+        x = 0
+        for c in range(9):
+            x += self.columnWidth(c)
+            if c in (2, 5):
+                painter.drawLine(x, 0, x, self.viewport().height())
+
+        # 水平粗线：在第 2 和 5 行之后绘制
+        y = 0
+        for r in range(9):
+            y += self.rowHeight(r)
+            if r in (2, 5):
+                painter.drawLine(0, y, self.viewport().width(), y)
+
+        painter.end()
