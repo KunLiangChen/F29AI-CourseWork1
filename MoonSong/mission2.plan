@@ -1,0 +1,24 @@
+;;!domain: lunar
+;;!problem: lunar-mission-2
+
+0.00000: (rover_move wp2 wp1 rover1)
+0.00100: (take_sample rover1 wp1 sample2)
+0.00200: (lander_land lander2 rover2 wp5)
+0.00300: (take_sample rover2 wp5 sample1)
+0.00400: (sample_receive lander2 rover2 sample1 wp5)
+0.00500: (rover_move wp5 wp6 rover2)
+0.00600: (take_scan rover2 wp6 scan2)
+0.00700: (rover_move wp1 wp2 rover1)
+0.00800: (sample_receive lander1 rover1 sample2 wp2)
+0.00900: (take_picture rover1 wp2 image2)
+0.01000: (rover_move wp6 wp4 rover2)
+0.01100: (rover_move wp2 wp3 rover1)
+0.01200: (transmit_data rover1 image2)
+0.01300: (take_picture rover1 wp3 image1)
+0.01400: (transmit_data rover1 image1)
+0.01500: (transmit_data rover2 scan2)
+0.01600: (take_scan rover2 wp4 scan1)
+0.01700: (transmit_data rover2 scan1)
+
+; Makespan: 0.017000000000000008
+; Metric: 0.017000000000000008

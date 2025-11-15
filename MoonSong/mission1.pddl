@@ -22,11 +22,12 @@
         (is_connected WP3 WP5)
         (is_connected WP4 WP3)
         (is_connected WP5 WP1)
-        (has_picture WP5 image)
-        (has_scan WP3 scan)
-        (has_sample WP1 sample)
+        (need_image WP5 image)
+        (need_scan WP3 scan)
+        (need_sample WP1 sample)
         (empty_memory rover)
         (hand_empty rover)
+        (association lander rover)
 
     )
 
