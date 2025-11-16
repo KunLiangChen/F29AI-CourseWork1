@@ -45,7 +45,7 @@ def load_board_from_file(path):
 def test_easy_sudoku():
     """测试一个简单数独能被快速解出"""
     # 构造一个简单可解的棋盘
-    board = load_board_from_file("data/easy.txt")
+    board = load_board_from_file("data/hard.txt")
     solver = CSPSolver(board, use_mrv=True, use_lcv=True, use_fc=True)
     solved = solver.solve()
 

@@ -46,6 +46,8 @@ class CSPSolver:
         self.metrics = Metrics()
         self.domains = {}   # (r,c) -> set of possible values
         self.assigned = set()
+        self.step_log = []  
+        self._step_counter = 0  
         self._init_domains()
 
         if self.use_ac3:
@@ -58,12 +60,11 @@ class CSPSolver:
             for c in range(9):
                 val = grid[r, c]
                 if val != 0:
-                    # 临时清空当前格，检查是否仍合法
                     grid[r, c] = 0
                     if not self.board.is_valid(r, c, val):
-                        grid[r, c] = val  # 恢复
+                        grid[r, c] = val  
                         return False
-                    grid[r, c] = val  # 恢复
+                    grid[r, c] = val  
         return True
 
     def _init_domains(self):
@@ -96,6 +97,11 @@ class CSPSolver:
         if var in self.assigned:
             self.assigned.remove(var)
 
+    def _log_step(self, message: str):
+        self._step_counter += 1
+        log_entry = f"Step {self._step_counter}: {message}"
+        self.step_log.append(log_entry)
+
     def solve(self):
         """Public entry point. Returns True if solved."""
         self.metrics.start()
@@ -110,19 +116,25 @@ class CSPSolver:
         if len(self.assigned) == 81:
             return True
         
-        
         var = select_unassigned_variable(self.domains, self.assigned,
                                          use_mrv=self.use_mrv, use_degree=True)
+        
+        r, c = var
+        domain = list(self.domains[var])
+        self._log_step(f"Select cell ({r},{c}), domain={domain}")
 
         for value in order_domain_values(var, self.domains, use_lcv=self.use_lcv):
             # check consistency quickly using board.is_valid
-            r, c = var
             if not self.board.is_valid(r, c, value):
+                self._log_step(f"  Try ({r},{c})={value}: INVALID (constraint violation)")
                 continue
 
+            self._log_step(f"  Try ({r},{c})={value}: VALID")
+            
             # tentatively assign
             self._assign(var, value)
             self.metrics.record_assignment()
+            self._log_step(f"    Assigned ({r},{c})={value}")
 
             # maintain domains: remove value from var domain (store old)
             old_domain_var = self.domains[var]
@@ -134,6 +146,9 @@ class CSPSolver:
                 inferences = forward_checking(self.domains, var, value)
                 if inferences is None:
                     failure = True
+                    self._log_step(f"    Forward checking failed for ({r},{c})={value}")
+                else:
+                    self._log_step(f"    Forward checking passed, eliminated some values")
 
             if not failure:
                 result = self._backtrack()
@@ -142,6 +157,8 @@ class CSPSolver:
 
             # undo
             self.metrics.record_backtrack()
+            self._log_step(f"  Backtrack from ({r},{c})={value}")
+            
             # restore domains
             self.domains[var] = old_domain_var
             if inferences:

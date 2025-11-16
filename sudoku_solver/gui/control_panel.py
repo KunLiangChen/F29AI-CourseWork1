@@ -1,7 +1,7 @@
 # gui/control_panel.py
 from PyQt5.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
-                             QFileDialog, QLabel, QCheckBox, QSlider, QGroupBox)
-from PyQt5.QtCore import Qt
+                             QFileDialog, QLabel, QCheckBox, QSlider, QGroupBox, QTextEdit)
+from PyQt5.QtCore import Qt, QSize
 from utils.file_io import load_sudoku, save_sudoku
 from utils.logger import get_logger
 import numpy as np
@@ -12,33 +12,37 @@ class ControlPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._init_ui()
+    
+    def sizeHint(self):
+        """Tell the layout manager this widget prefers a certain size."""
+        return QSize(220, 400)
 
     def _init_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(8)
+        layout.setContentsMargins(10, 10, 10, 10)
+        
         # buttons
         self.load_btn = QPushButton("Load (.txt/.csv)")
+        self.load_btn.setMinimumHeight(40)
         self.save_btn = QPushButton("Save")
+        self.save_btn.setMinimumHeight(40)
         self.solve_btn = QPushButton("Solve")
+        self.solve_btn.setMinimumHeight(40)
         self.reset_btn = QPushButton("Reset")
+        self.reset_btn.setMinimumHeight(40)
         self.quit_btn = QPushButton("Quit")
-        # animation checkbox
-        self.animate_checkbox = QCheckBox("Animate solving (step-by-step)")
-        self.animate_checkbox.setChecked(True)
-        # speed slider
-        speed_box = QGroupBox("Animation speed")
-        speed_layout = QHBoxLayout()
-        self.speed_slider = QSlider(Qt.Horizontal)
-        self.speed_slider.setMinimum(10)   # ms
-        self.speed_slider.setMaximum(1000)
-        self.speed_slider.setValue(150)
-        speed_layout.addWidget(QLabel("Fast"))
-        speed_layout.addWidget(self.speed_slider)
-        speed_layout.addWidget(QLabel("Slow"))
-        speed_box.setLayout(speed_layout)
+        self.quit_btn.setMinimumHeight(40)
 
         # status label
         self.status_label = QLabel("Ready")
         self.metrics_label = QLabel("Metrics: -")
+        
+        # steps log area (scrollable)
+        self.steps_log = QTextEdit()
+        self.steps_log.setReadOnly(True)
+        self.steps_log.setMinimumHeight(400)
+        self.steps_log.setStyleSheet("background: #1a1a1a; color: #aaa; font-size: 20px;")
 
         # pack
         layout.addWidget(self.load_btn)
@@ -46,11 +50,11 @@ class ControlPanel(QWidget):
         layout.addWidget(self.solve_btn)
         layout.addWidget(self.reset_btn)
         layout.addWidget(self.quit_btn)
-        layout.addWidget(self.animate_checkbox)
-        layout.addWidget(speed_box)
-        layout.addStretch()
+        layout.addWidget(QLabel("Status:"))
         layout.addWidget(self.status_label)
         layout.addWidget(self.metrics_label)
+        layout.addWidget(QLabel("Solve Steps:"))
+        layout.addWidget(self.steps_log, 1)  # 伸缩因子为1，自动扩展
 
         self.setLayout(layout)
 
@@ -68,3 +72,14 @@ class ControlPanel(QWidget):
 
     def set_metrics_text(self, text: str):
         self.metrics_label.setText(f"Metrics: {text}")
+    
+    def add_step_log(self, text: str):
+        """Add a step log message to the scrollable area."""
+        self.steps_log.append(text)
+        # Auto-scroll to bottom
+        scrollbar = self.steps_log.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+    
+    def clear_steps_log(self):
+        """Clear the steps log."""
+        self.steps_log.clear()

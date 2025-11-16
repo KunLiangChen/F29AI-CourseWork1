@@ -21,7 +21,7 @@ class BoardWidget(QTableWidget):
         self._prev_grid = np.zeros((9,9), dtype=int)
 
     def _init_ui(self):
-        self.setFixedSize(540, 540)
+        self.setFixedSize(543, 543)
         self.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
         self.horizontalHeader().setVisible(False)
         self.verticalHeader().setVisible(False)
@@ -108,23 +108,23 @@ class BoardWidget(QTableWidget):
             self.highlight_cell(r, c)
 
     def paintEvent(self, event):
-        # 先由基类绘制表格与单元格
+        
         super().paintEvent(event)
 
-        # 在 viewport 上绘制粗线（不影响表头）
+        
         painter = QPainter(self.viewport())
         pen = QPen(QColor(170, 170, 170))
         pen.setWidth(3)
         painter.setPen(pen)
 
-        # 垂直粗线：在第 2 和 5 列之后绘制
+        
         x = 0
         for c in range(9):
             x += self.columnWidth(c)
             if c in (2, 5):
                 painter.drawLine(x, 0, x, self.viewport().height())
 
-        # 水平粗线：在第 2 和 5 行之后绘制
+       
         y = 0
         for r in range(9):
             y += self.rowHeight(r)

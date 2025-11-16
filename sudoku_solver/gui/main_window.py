@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sudoku Solver — Dark Mode (Animated)")
-        self.resize(1000, 640)
+        self.resize(1100, 800)
         self.worker_thread = None
         self.worker = None
         self._last_snapshot = np.zeros((9,9), dtype=int)
@@ -27,6 +27,9 @@ class MainWindow(QMainWindow):
     def _init_ui(self):
         central = QWidget()
         main_layout = QHBoxLayout()
+        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        
         left_col = QVBoxLayout()
         right_col = QVBoxLayout()
 
@@ -55,8 +58,8 @@ class MainWindow(QMainWindow):
         right_col.addWidget(self.control)
         right_col.addStretch()
 
-        main_layout.addLayout(left_col)
-        main_layout.addLayout(right_col)
+        main_layout.addLayout(left_col, 0)
+        main_layout.addLayout(right_col, 1)
 
         central.setLayout(main_layout)
         self.setCentralWidget(central)
@@ -105,6 +108,12 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Invalid board", str(e))
             return
 
+        # clear previous steps log
+        self.control.clear_steps_log()
+        # self.control.add_step_log("=" * 50)
+        self.control.add_step_log("Solving started...")
+        # self.control.add_step_log("=" * 50)
+
         # disable UI controls while running
         self.control.solve_btn.setEnabled(False)
         self.control.load_btn.setEnabled(False)
@@ -113,12 +122,13 @@ class MainWindow(QMainWindow):
         self.control.set_status("Solving...")
 
         # prepare worker thread
-        self.worker = SolverWorker(board, CSPSolver, poll_interval=self.control.speed_slider.value()/1000.0)
+        self.worker = SolverWorker(board, CSPSolver)
         self.worker_thread = QThread()
         self.worker.moveToThread(self.worker_thread)
-        # connect signals
+        # connect signals (skip on_step for direct result)
         self.worker_thread.started.connect(self.worker.run)
-        self.worker.step.connect(self.on_step)
+        # self.worker.step.connect(self.on_step)  
+        self.worker.step_info.connect(self.on_step_info)  #
         self.worker.finished.connect(self.on_finished)
         # start thread
         self.worker_thread.start()
@@ -137,12 +147,31 @@ class MainWindow(QMainWindow):
             # use QTimer singleShot to restore style after delay
             delay = self.control.speed_slider.value()
             QTimer.singleShot(delay, lambda: self.board_widget.set_grid(grid_snapshot))
+    
+    def on_step_info(self, info_text: str):
+        """Handle step information from solver worker."""
+        self.control.add_step_log(info_text)
 
     def on_finished(self, success: bool, metrics: dict):
+        # display final result
+        final_grid = self.worker.board.grid if self.worker else None
+        if final_grid is not None:
+            self.board_widget.set_grid(final_grid)
+        
         self.control.set_status("Finished" if success else "Finished (incomplete)")
         metrics_text = f"assignments={metrics.get('assignments')}, backtracks={metrics.get('backtracks')}, time={metrics.get('time'):.3f}s" if metrics.get('time') is not None else str(metrics)
         self.control.set_metrics_text(metrics_text)
         self.log(f"Solve finished. Success={success}. {metrics_text}")
+        
+        # Log final statistics
+        # self.control.add_step_log("=" * 50)
+        self.control.add_step_log("---Solving completed---")
+        self.control.add_step_log(f"Success: {success}")
+        self.control.add_step_log(f"Assignments: {metrics.get('assignments', 0)}")
+        self.control.add_step_log(f"Backtracks: {metrics.get('backtracks', 0)}")
+        self.control.add_step_log(f"Time: {metrics.get('time', 0):.4f}s")
+        # self.control.add_step_log("=" * 50)
+        
         # re-enable UI
         self.control.solve_btn.setEnabled(True)
         self.control.load_btn.setEnabled(True)
