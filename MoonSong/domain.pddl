@@ -69,11 +69,17 @@
     ;     )
     ; )
 
+    ;-------------------------------
+    ; land and deploy
+    ; -------------------------------
+    ;Before the lander landing the lander and the rover are not anywhere
+    ;This should be the first action for an undeployed rover
+    ;And only perform once at beginning.
     (:action lander_land 
         :parameters (?lan - lander ?r - rover ?l - location)
         :precondition 
         (and
-            (not (is_landed ?lan))
+            (not (is_landed ?lan)) 
             )
         :effect 
         (and
@@ -83,6 +89,10 @@
         )
     )
     
+    ;-------------------------------
+    ; rover move
+    ; -------------------------------
+    ;The graph is directed graph, so we choose to move from l1 to l2
     (:action rover_move
         :parameters (?l1 - location ?l2 - location ?r - rover)
         :precondition
@@ -98,6 +108,12 @@
         )
     )
     
+    ;-------------------------------
+    ; take picture on location 
+    ; -------------------------------
+    ;This require the rover has an empty memory to store the image
+    ;Also when a rover take the picture there is no need to take a picture again
+    ;After that the rover is full so it can't store other data.
     (:action take_picture
         :parameters (?r - rover ?l - location ?i - image)
         :precondition
@@ -114,6 +130,10 @@
         )
     )
     
+    ;-------------------------------
+    ; take scan on loctaiom
+    ; -------------------------------
+    ;The same action with take picture
     (:action take_scan
         :parameters (?r - rover ?l - location ?sc - scan)
         :precondition
@@ -130,6 +150,10 @@
         )   
     )
     
+    ;-------------------------------
+    ; take sample
+    ; -------------------------------
+    ;Sample need a position to grab, and it won't infuluence the storage of the data
     (:action take_sample
         :parameters (?r - rover ?l - location ?s - sample)
         :precondition
@@ -148,11 +172,17 @@
         )
     )
     
+    ;-------------------------------
+    ; transmit data back to lander
+    ; -------------------------------
+    ; Though there seems no need to specify which lander receive the data
+    ; For precise describe we still record it.
     (:action transmit_data
-        :parameters (?r - rover ?d - data)
+        :parameters (?r - rover ?d - data ?lan - lander)
         :precondition (and 
             (captured_data ?r ?d)
             (not (has_received ?d))
+            (association ?lan ?r)
         ) 
         :effect (and
             (not (captured_data ?r ?d))
@@ -161,6 +191,11 @@
         )
     )
     
+
+    ;-------------------------------
+    ; take sample back to lander
+    ; -------------------------------
+    ; Rover need to put the sample into associated lander
     (:action sample_receive
         :parameters (?lan - lander ?r - rover ?s - sample ?l - location)
         :precondition (and
