@@ -1,6 +1,6 @@
 # gui/board_widget.py
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
-from PyQt5.QtWidgets import QItemDelegate, QLineEdit
+from PyQt5.QtWidgets import QItemDelegate, QLineEdit,QHeaderView
 from PyQt5.QtGui import QFont, QColor, QBrush, QPainter, QPen, QRegExpValidator
 from PyQt5.QtCore import Qt, QRegExp
 import numpy as np
@@ -18,21 +18,21 @@ class BoardWidget(QTableWidget):
     def __init__(self, parent=None):
         super().__init__(9, 9, parent)
         self._init_ui()
-        self._prev_grid = np.zeros((9,9), dtype=int)
-
+        self._initial_grid = np.zeros((9,9), dtype=int)
     def _init_ui(self):
         self.setFixedSize(543, 543)
         self.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
         self.horizontalHeader().setVisible(False)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.verticalHeader().setVisible(False)
-        self.setFont(QFont("Consolas", 18))
+        self.setFont(QFont("Consolas", 16))
         self.setFocusPolicy(Qt.StrongFocus)
         # apply digit-only delegate for all cells
         self.setItemDelegate(DigitDelegate(self))
         for r in range(9):
-            self.setRowHeight(r, 60)
+            self.setRowHeight(r, 57)
             for c in range(9):
-                self.setColumnWidth(c, 60)
+                self.setColumnWidth(c, 10)
                 item = QTableWidgetItem("")
                 item.setTextAlignment(Qt.AlignCenter)
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
@@ -42,9 +42,9 @@ class BoardWidget(QTableWidget):
     def _apply_grid_lines(self):
         # keep thin cell borders via stylesheet; thicker 3x3 separators drawn in paintEvent
         self.setStyleSheet("""
-        QTableWidget::item { border: 1px solid #333; color: #ddd; background: #222; }
-        QTableWidget { gridline-color: #444; }
-        """)
+            QTableWidget::item { border: 1px solid #3B4A6B; } /* 和按钮边框颜色一致 */
+            QTableWidget { gridline-color: #3B4A6B; } 
+            """)
 
     def get_grid(self) -> np.ndarray:
         grid = np.zeros((9,9), dtype=int)
@@ -68,11 +68,35 @@ class BoardWidget(QTableWidget):
 
     def set_grid(self, grid: np.ndarray):
         grid = np.array(grid, dtype=int)
+
+        # 如果是第一次设置网格，记录初始状态
+        if np.array_equal(self._initial_grid, np.zeros((9,9), dtype=int)):
+            # 确保只有非零值被记录为初始值
+            self._initial_grid = np.where(grid != 0, grid, 0)
+
+        font = QFont("Consolas", 18)
+        bold_font = QFont("Consolas", 18, QFont.Bold) # 粗体用于初始值
+
         for r in range(9):
             for c in range(9):
+                item = self.item(r, c)
                 v = grid[r, c]
                 text = "" if v == 0 else str(int(v))
-                self.item(r, c).setText(text)
+
+                # 初始值 (Fixed)
+                if self._initial_grid[r, c] != 0:
+                    item.setText(text)
+                    item.setFont(bold_font)
+                    item.setForeground(QBrush(QColor("#FFFFFF"))) # 初始值用纯白
+                    item.setBackground(QBrush(QColor("#222233"))) # 深蓝灰色背景
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled) # 不可编辑
+                # 求解器/用户填入的值 (Editable)
+                else:
+                    item.setText(text)
+                    item.setFont(font)
+                    item.setForeground(QBrush(QColor("#4CAF50"))) # 绿色字体
+                    item.setBackground(QBrush(QColor("#1A1A2E"))) # 和主背景一致
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
 
     def clear(self):
         for r in range(9):
@@ -87,15 +111,15 @@ class BoardWidget(QTableWidget):
         if item is None:
             return
         # apply bright background for a short time (caller handles timer)
-        item.setBackground(QBrush(QColor(60, 120, 200)))
-        item.setForeground(QBrush(QColor(255, 255, 255)))
+        item.setBackground(QBrush(QColor("#FFD700"))) # 亮金色
+        item.setForeground(QBrush(QColor("#1A1A2E"))) # 深色字体，高对比度
 
     def mark_final(self, r: int, c: int):
         """Make final assigned cell style (a bit different)."""
         item = self.item(r, c)
         if item:
-            item.setBackground(QBrush(QColor(20, 80, 20)))
-            item.setForeground(QBrush(QColor(220, 255, 220)))
+            item.setBackground(QBrush(QColor("#4CAF50").darker(150))) # 略深的绿色
+            item.setForeground(QBrush(QColor("#FFFFFF")))
 
     def show_grid_snapshot(self, grid: np.ndarray, highlight=None):
         """

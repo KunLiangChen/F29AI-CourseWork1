@@ -33,28 +33,40 @@ class ControlPanel(QWidget):
         self.reset_btn.setMinimumHeight(40)
         self.quit_btn = QPushButton("Quit")
         self.quit_btn.setMinimumHeight(40)
-
+        button_group = QGroupBox("Operations")
+        button_layout = QVBoxLayout(button_group)
+        button_layout.addWidget(self.load_btn)
+        button_layout.addWidget(self.save_btn)
+        button_layout.addWidget(self.solve_btn)
+        button_layout.addWidget(self.reset_btn)
+        button_layout.addWidget(self.quit_btn)
         # status label
         self.status_label = QLabel("Ready")
         self.metrics_label = QLabel("Metrics: -")
-        
+        status_group = QGroupBox("Status & Metrics")
+        status_layout = QVBoxLayout(status_group)
+        self.status_label.setStyleSheet("font-size: 14pt; font-weight: bold; color: #60A5FA;") # 突出显示状态
+        status_layout.addWidget(self.status_label)
+        status_layout.addWidget(self.metrics_label)
         # steps log area (scrollable)
         self.steps_log = QTextEdit()
         self.steps_log.setReadOnly(True)
         self.steps_log.setMinimumHeight(400)
         self.steps_log.setStyleSheet("background: #1a1a1a; color: #aaa; font-size: 20px;")
+        log_group = QGroupBox("Solve Steps Log")
+        log_layout = QVBoxLayout(log_group)
 
+        self.steps_log = QTextEdit()
+        self.steps_log.setReadOnly(True)
+        # 使用styles.qss中的QTextEdit样式，这里不需要额外设置
+
+        log_layout.addWidget(self.steps_log)
+        layout.addWidget(log_group, 1) # 伸缩因子为1
         # pack
-        layout.addWidget(self.load_btn)
-        layout.addWidget(self.save_btn)
-        layout.addWidget(self.solve_btn)
-        layout.addWidget(self.reset_btn)
-        layout.addWidget(self.quit_btn)
+        layout.addWidget(button_group)
         layout.addWidget(QLabel("Status:"))
-        layout.addWidget(self.status_label)
-        layout.addWidget(self.metrics_label)
+        layout.addWidget(status_group)
         layout.addWidget(QLabel("Solve Steps:"))
-        layout.addWidget(self.steps_log, 1)  # 伸缩因子为1，自动扩展
 
         self.setLayout(layout)
 

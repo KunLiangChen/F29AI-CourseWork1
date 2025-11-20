@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sudoku Solver — Dark Mode (Animated)")
-        self.resize(1100, 800)
+        self.resize(1000, 800)
         self.worker_thread = None
         self.worker = None
         self._last_snapshot = np.zeros((9,9), dtype=int)
@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
 
         # board
         self.board_widget = BoardWidget(self)
-
+    
         # control
         self.control = ControlPanel(self)
 
@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setFixedHeight(180)
-        self.log_text.setStyleSheet("background: #111; color: #ccc;")
+        # self.log_text.setStyleSheet("background: #111; color: #ccc;")
 
         # connect control signals
         self.control.load_btn.clicked.connect(self.on_load)

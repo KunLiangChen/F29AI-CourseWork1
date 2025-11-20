@@ -1,39 +1,38 @@
 sudoku_solver/
 │
-├── main.py                          # 程序入口：启动 GUI
+├── main.py                          
 │
-├── requirements.txt                 # 所需库列表（PyQt5, numpy, etc.）
+├── requirements.txt                 
+├── README.md                        
 │
-├── README.md                        # 简要说明（运行方式、功能、截图等）
-│
-├── data/                            # 存放样例输入数独文件
+├── data/                            
 │   ├── easy.txt
 │   ├── medium.csv
 │   └── hard.txt
 │
-├── sudoku_core/                     # 求解器核心逻辑模块
-│   ├── __init__.py    (完成)
-│   ├── board.py       (完成)              # SudokuBoard 类：维护网格、合法性检查
-│   ├── csp_solver.py   （完成）             # CSP 求解器核心（回溯 + MRV + LCV + Forward Checking）
-│   ├── heuristics.py   （完成）             # 启发式函数（MRV, LCV, Degree heuristic）
-│   ├── inference.py    （完成）             # 推理算法（Forward Checking / AC-3）
-│   └── metrics.py      （完成）             # 性能统计类（时间、回溯次数、递归深度）
+├── sudoku_core/                     
+│   ├── __init__.py    
+│   ├── board.py                
+│   ├── csp_solver.py            
+│   ├── heuristics.py         
+│   ├── inference.py    
+│   └── metrics.py      
 │
-├── gui/                             # 图形界面模块
+├── gui/                            
 │   ├── __init__.py
-│   ├── main_window.py               # 主窗口（QMainWindow）
-│   ├── board_widget.py              # 数独棋盘组件（可编辑网格）
-│   ├── control_panel.py             # 按钮区（加载文件、开始求解、重置、显示指标）
-│   ├── visualizer.py                # 可视化逻辑（逐步填充动画）
-│   └── styles.qss                   # GUI 样式文件（美观主题）
+│   ├── main_window.py               
+│   ├── board_widget.py              
+│   ├── control_panel.py             
+│   ├── visualizer.py                
+│   └── styles.qss                   
 │
-├── utils/                           # 通用工具模块
+├── utils/                           
 │   ├── __init__.py
-│   ├── file_io.py    (完成)               # 读取/写入 .txt 或 .csv 文件
-│   ├── timer.py      （完成）               # 性能计时装饰器
-│   └── logger.py     （完成）               # 日志记录（调试、事件输出）
+│   ├── file_io.py                
+│   ├── timer.py      
+│   └── logger.py     
 │
-└── tests/                           # 单元测试目录
-    ├── test_csp_solver.py  (完成)
-    ├── test_board_validation.py(完成)
+└── tests/                          
+    ├── test_csp_solver.py  
+    ├── test_board_validation.py
     └── test_file_io.py
