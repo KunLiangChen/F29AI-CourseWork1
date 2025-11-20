@@ -20,19 +20,19 @@ class BoardWidget(QTableWidget):
         self._init_ui()
         self._initial_grid = np.zeros((9,9), dtype=int)
     def _init_ui(self):
-        self.setFixedSize(543, 543)
+        self.setFixedSize(723, 723)
         self.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
         self.horizontalHeader().setVisible(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.verticalHeader().setVisible(False)
-        self.setFont(QFont("Consolas", 16))
+        self.setFont(QFont("Consolas", 18))
         self.setFocusPolicy(Qt.StrongFocus)
         # apply digit-only delegate for all cells
         self.setItemDelegate(DigitDelegate(self))
         for r in range(9):
-            self.setRowHeight(r, 57)
+            self.setRowHeight(r, 80)
             for c in range(9):
-                self.setColumnWidth(c, 10)
+                self.setColumnWidth(c, 80)
                 item = QTableWidgetItem("")
                 item.setTextAlignment(Qt.AlignCenter)
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
@@ -66,14 +66,12 @@ class BoardWidget(QTableWidget):
                     grid[r, c] = val
         return grid
 
+    def capture_initial_state(self, grid: np.ndarray):
+        self._initial_grid = np.where(grid != 0, grid, 0).copy()
+        self.set_grid(grid)
+
     def set_grid(self, grid: np.ndarray):
         grid = np.array(grid, dtype=int)
-
-        # 如果是第一次设置网格，记录初始状态
-        if np.array_equal(self._initial_grid, np.zeros((9,9), dtype=int)):
-            # 确保只有非零值被记录为初始值
-            self._initial_grid = np.where(grid != 0, grid, 0)
-
         font = QFont("Consolas", 18)
         bold_font = QFont("Consolas", 18, QFont.Bold) # 粗体用于初始值
 
@@ -99,9 +97,16 @@ class BoardWidget(QTableWidget):
                     item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
 
     def clear(self):
+        # 1. 重置初始网格状态为全零 (新增)
+        self._initial_grid = np.zeros((9,9), dtype=int) 
+        # 2. 清除所有单元格文本
         for r in range(9):
             for c in range(9):
-                self.item(r, c).setText("")
+                # 确保在清空文本后，恢复单元格的编辑权限和默认样式
+                item = self.item(r, c)
+                item.setText("")
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable) 
+                
 
     def highlight_cell(self, r: int, c: int, temporary=True):
         """Highlight a single cell (used for animation)."""

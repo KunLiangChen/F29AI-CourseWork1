@@ -13,9 +13,6 @@ class ControlPanel(QWidget):
         super().__init__(parent)
         self._init_ui()
     
-    def sizeHint(self):
-        """Tell the layout manager this widget prefers a certain size."""
-        return QSize(220, 400)
 
     def _init_ui(self):
         layout = QVBoxLayout()
@@ -49,15 +46,18 @@ class ControlPanel(QWidget):
         status_layout.addWidget(self.status_label)
         status_layout.addWidget(self.metrics_label)
         # steps log area (scrollable)
-        self.steps_log = QTextEdit()
-        self.steps_log.setReadOnly(True)
-        self.steps_log.setMinimumHeight(400)
-        self.steps_log.setStyleSheet("background: #1a1a1a; color: #aaa; font-size: 20px;")
+        # self.steps_log = QTextEdit()
+        # self.steps_log.setReadOnly(True)
+        # self.steps_log.setMinimumHeight(800)
+        # self.steps_log.setStyleSheet("background: #1a1a1a; color: #aaa; font-size: 20px;")
         log_group = QGroupBox("Solve Steps Log")
         log_layout = QVBoxLayout(log_group)
 
         self.steps_log = QTextEdit()
         self.steps_log.setReadOnly(True)
+        self.steps_log.setMinimumHeight(300)
+        self.steps_log.setStyleSheet("background: #1a1a1a; color: #aaa; font-size: 16px; border: none;")
+
         # 使用styles.qss中的QTextEdit样式，这里不需要额外设置
 
         log_layout.addWidget(self.steps_log)
@@ -66,7 +66,6 @@ class ControlPanel(QWidget):
         layout.addWidget(button_group)
         layout.addWidget(QLabel("Status:"))
         layout.addWidget(status_group)
-        layout.addWidget(QLabel("Solve Steps:"))
 
         self.setLayout(layout)
 

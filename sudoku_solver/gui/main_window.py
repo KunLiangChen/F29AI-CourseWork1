@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sudoku Solver — Dark Mode (Animated)")
-        self.resize(1000, 800)
+        self.resize(1200, 900)
         self.worker_thread = None
         self.worker = None
         self._last_snapshot = np.zeros((9,9), dtype=int)
@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
 
         main_layout.addLayout(left_col, 0)
         main_layout.addLayout(right_col, 1)
-
+        # main_layout.addStretch()
         central.setLayout(main_layout)
         self.setCentralWidget(central)
 
@@ -74,7 +74,8 @@ class MainWindow(QMainWindow):
             return
         try:
             board = load_sudoku(path)
-            self.board_widget.set_grid(board.grid)
+            # self.board_widget.set_grid(board.grid)
+            self.board_widget.capture_initial_state(board.grid)
             self.log(f"Loaded: {path}")
             self.control.set_status("Loaded file.")
         except Exception as e:
@@ -101,6 +102,7 @@ class MainWindow(QMainWindow):
     def on_solve(self):
         # read grid
         grid = self.board_widget.get_grid()
+        self.board_widget.capture_initial_state(grid)
         # create SudokuBoard
         try:
             board = SudokuBoard(grid)
