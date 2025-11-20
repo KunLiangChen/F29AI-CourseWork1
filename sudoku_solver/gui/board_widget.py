@@ -19,6 +19,38 @@ class BoardWidget(QTableWidget):
         super().__init__(9, 9, parent)
         self._init_ui()
         self._initial_grid = np.zeros((9,9), dtype=int)
+        self.is_solved = False    
+
+    def _on_cell_changed(self, r, c):
+        # 1. 阻止信号，防止无限递归
+        self.blockSignals(True)
+        
+        try:
+            # 仅在非初始值的可编辑单元格上进行样式更新
+            if self._initial_grid[r, c] == 0:
+                grid = self.get_grid()
+                v = grid[r, c]
+                text = "" if v == 0 else str(int(v))
+                item = self.item(r, c)
+
+                # 沿用 set_grid 中的用户输入样式逻辑 (亮灰白)
+                # 注意：item.setText(text) 在某些Qt版本中可能会再次触发 cellChanged
+                item.setText(text) 
+                
+                # 用户输入时的样式 (求解器运行前)
+                COLOR_USER = QColor("#E0E0E0") 
+                COLOR_BACKGROUND = QColor("#1A1A2E")
+                
+                item.setFont(QFont("Consolas", 18))
+                item.setForeground(QBrush(COLOR_USER)) 
+                item.setBackground(QBrush(COLOR_BACKGROUND))
+                # 确保编辑权限依然存在
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+
+        finally:
+            # 2. 恢复信号发射
+            self.blockSignals(False)
+
     def _init_ui(self):
         self.setFixedSize(723, 723)
         self.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
@@ -38,6 +70,9 @@ class BoardWidget(QTableWidget):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
                 self.setItem(r, c, item)
         self._apply_grid_lines()
+        self.cellChanged.connect(self._on_cell_changed)
+
+    
 
     def _apply_grid_lines(self):
         # keep thin cell borders via stylesheet; thicker 3x3 separators drawn in paintEvent
@@ -71,41 +106,79 @@ class BoardWidget(QTableWidget):
         self.set_grid(grid)
 
     def set_grid(self, grid: np.ndarray):
-        grid = np.array(grid, dtype=int)
-        font = QFont("Consolas", 18)
-        bold_font = QFont("Consolas", 18, QFont.Bold) # 粗体用于初始值
-
+        """Update the display based on the numpy grid."""
         for r in range(9):
             for c in range(9):
-                item = self.item(r, c)
                 v = grid[r, c]
-                text = "" if v == 0 else str(int(v))
+                item = self.item(r, c)
+                if item is None:
+                    # Create item if it doesn't exist
+                    item = QTableWidgetItem()
+                    item.setTextAlignment(Qt.AlignCenter)
+                    self.setItem(r, c, item)
+                
+                # Check for existing value for coloring
+                initial_v = self._initial_grid[r, c]
 
-                # 初始值 (Fixed)
-                if self._initial_grid[r, c] != 0:
-                    item.setText(text)
-                    item.setFont(bold_font)
-                    item.setForeground(QBrush(QColor("#FFFFFF"))) # 初始值用纯白
-                    item.setBackground(QBrush(QColor("#222233"))) # 深蓝灰色背景
-                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled) # 不可编辑
-                # 求解器/用户填入的值 (Editable)
+                if v == 0:
+                    item.setText("")
                 else:
-                    item.setText(text)
-                    item.setFont(font)
-                    item.setForeground(QBrush(QColor("#4CAF50"))) # 绿色字体
-                    item.setBackground(QBrush(QColor("#1A1A2E"))) # 和主背景一致
-                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+                    item.setText(str(v))
+
+                # Apply styling
+                if initial_v != 0:
+                    # 1. Initial number (fixed)
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    item.setBackground(QBrush(QColor("#1A1A2E"))) # Background from CSS
+                    item.setForeground(QBrush(QColor("#B0C4DE"))) # Initial value color
+                elif v != 0 and self.is_solved:
+                    # 2. Solved number (Final state, solver-assigned). CHANGE HERE: Use green text.
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    # 更改为绿色字体，并使用深色背景
+                    item.setBackground(QBrush(QColor("#1A1A2E"))) # 主题背景色
+                    item.setForeground(QBrush(QColor("#81C784"))) # 柔和的亮绿色文字
+                elif v != 0:
+                    # 3. Solved number (During solving process - intermediate step)
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    # Use standard green font for solver-filled during animation
+                    item.setForeground(QBrush(QColor("#4CAF50"))) # 标准绿色文字
+                    item.setBackground(QBrush(QColor("#1A1A2E"))) # 主题背景色
+                else:
+                    # 4. Empty cell (editable, including user-inputted cells if set_grid is called)
+                    # Note: User input coloring is mostly handled by _on_cell_changed 
+                    # but this provides a fallback for resets/updates.
+                    item.setFlags(Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    item.setBackground(QBrush(QColor("#1A1A2E"))) # Background from CSS
+                    item.setForeground(QBrush(QColor("#E0E0E0"))) # User input color (white/light gray)
 
     def clear(self):
-        # 1. 重置初始网格状态为全零 (新增)
+        # 1. 重置初始网格状态和求解状态
         self._initial_grid = np.zeros((9,9), dtype=int) 
-        # 2. 清除所有单元格文本
-        for r in range(9):
-            for c in range(9):
-                # 确保在清空文本后，恢复单元格的编辑权限和默认样式
-                item = self.item(r, c)
-                item.setText("")
-                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable) 
+        self.is_solved = False # 确保重置状态
+
+        # 2. 清除所有单元格文本并恢复默认样式
+        font = QFont("Consolas", 18)
+        default_fg_color = QColor("#E0E0E0") # 使用用户输入颜色作为默认色
+        default_bg_color = QColor("#1A1A2E") # 和主背景一致
+
+        # 遍历单元格时阻止信号，防止 set_grid 内部修改触发 cellChanged
+        self.blockSignals(True) 
+        
+        try:
+            for r in range(9):
+                for c in range(9):
+                    item = self.item(r, c)
+                    item.setText("")
+                    
+                    # 彻底恢复默认样式 (亮灰白/主背景)
+                    item.setFont(font)
+                    item.setForeground(QBrush(default_fg_color))
+                    item.setBackground(QBrush(default_bg_color))
+                    
+                    # 恢复编辑权限
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+        finally:
+            self.blockSignals(False)
                 
 
     def highlight_cell(self, r: int, c: int, temporary=True):

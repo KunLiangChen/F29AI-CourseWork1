@@ -103,6 +103,7 @@ class MainWindow(QMainWindow):
         # read grid
         grid = self.board_widget.get_grid()
         self.board_widget.capture_initial_state(grid)
+        self.board_widget.is_solved = False
         # create SudokuBoard
         try:
             board = SudokuBoard(grid)
@@ -158,6 +159,7 @@ class MainWindow(QMainWindow):
         # display final result
         final_grid = self.worker.board.grid if self.worker else None
         if final_grid is not None:
+            self.board_widget.is_solved = success
             self.board_widget.set_grid(final_grid)
         
         self.control.set_status("Finished" if success else "Finished (incomplete)")
