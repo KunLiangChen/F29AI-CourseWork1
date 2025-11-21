@@ -16,6 +16,7 @@
 
     (:init
         (not (is_landed lander))
+        (not (is_deployed rover))
         (is_connected WP1 WP2)
         (is_connected WP1 WP4)
         (is_connected WP2 WP3)
