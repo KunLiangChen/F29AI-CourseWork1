@@ -1,0 +1,16 @@
+;;!domain: lunar
+;;!problem: lunar-mission-1
+
+0.00000: (lander_land lander rover wp1)
+0.00100: (take_sample rover wp1 sample)
+0.00200: (sample_receive lander rover sample wp1)
+0.00300: (rover_move wp1 wp2 rover)
+0.00400: (rover_move wp2 wp3 rover)
+0.00500: (take_scan rover wp3 scan)
+0.00600: (rover_move wp3 wp5 rover)
+0.00700: (transmit_data rover scan lander)
+0.00800: (take_picture rover wp5 image)
+0.00900: (transmit_data rover image lander)
+
+; Makespan: 0.009000000000000001
+; Metric: 0.009000000000000001

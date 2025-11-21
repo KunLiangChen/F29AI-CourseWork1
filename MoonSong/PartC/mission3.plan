@@ -1,0 +1,37 @@
+;;!domain: lunar-extended
+;;!problem: lunar-mission-3
+
+0.00000: (rover_move wp2 wp1 rover1)
+0.00100: (take_sample rover1 wp1 sample2)
+0.00200: (rover_move wp1 wp2 rover1)
+0.00300: (rover_move wp2 wp4 rover1)
+0.00400: (take_scan rover1 wp4 scan1)
+0.00500: (lander_land lander2 wp6)
+0.00600: (rover_move wp4 wp2 rover1)
+0.00700: (astronaut_move_internal alice lander1 docking_bay1 control_room1)
+0.00800: (transmit_data rover1 scan1 lander1 alice control_room1)
+0.00900: (rover_move wp2 wp3 rover1)
+0.01000: (take_picture rover1 wp3 image1)
+0.01100: (rover_move wp3 wp5 rover1)
+0.01200: (transmit_data rover1 image1 lander1 alice control_room1)
+0.01300: (rover_move wp5 wp6 rover1)
+0.01400: (take_scan rover1 wp6 scan2)
+0.01500: (rover_move wp6 wp4 rover1)
+0.01600: (rover_move wp4 wp2 rover1)
+0.01700: (transmit_data rover1 scan2 lander1 alice control_room1)
+0.01800: (take_picture rover1 wp2 image2)
+0.01900: (transmit_data rover1 image2 lander1 alice control_room1)
+0.02000: (astronaut_move_internal alice lander1 control_room1 docking_bay1)
+0.02100: (sample_receive lander1 rover1 sample2 wp2 alice docking_bay1)
+0.02200: (astronaut_move_internal bob lander2 control_room2 docking_bay2)
+0.02300: (rover_deploy rover2 lander2 wp6 bob docking_bay2)
+0.02400: (rover_move wp6 wp4 rover2)
+0.02500: (rover_move wp4 wp2 rover2)
+0.02600: (rover_move wp2 wp3 rover2)
+0.02700: (rover_move wp3 wp5 rover2)
+0.02800: (take_sample rover2 wp5 sample1)
+0.02900: (rover_move wp5 wp6 rover2)
+0.03000: (sample_receive lander2 rover2 sample1 wp6 bob docking_bay2)
+
+; Makespan: 0.03000000000000002
+; Metric: 0.03000000000000002
