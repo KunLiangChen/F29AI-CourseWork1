@@ -1,0 +1,15 @@
+# Sudoku Solver Requirements
+# Python 3.7+
+
+# GUI Framework
+PyQt5==5.15.9
+
+# Scientific Computing
+numpy>=1.21.0
+
+# Testing Framework (Optional, for running tests)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Optional: For improved performance
+# numba>=0.56.0  # JIT compilation for performance-critical code
