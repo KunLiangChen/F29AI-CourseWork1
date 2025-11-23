@@ -10,7 +10,6 @@
         scan - data
         image - data
         sample
-        human
         astronaut
         internal_area
         control_room - internal_area
