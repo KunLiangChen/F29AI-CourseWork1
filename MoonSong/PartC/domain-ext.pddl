@@ -19,8 +19,8 @@
 
     (:predicates
         (is_landed ?lan - lander) ;Whether a lander is landed or not.
-        (is_deployed ?r - rover)
-        (is_area_of ?ia - internal_area ?lan - lander)
+        (is_deployed ?r - rover) ;Whether the rover is deployed or not.
+        (is_area_of ?ia - internal_area ?lan - lander) ;Make sure the internal area is of the lander.
         (on_position ?e - equipment ?l - location) ;Whether an equipment is on a certain location or not.
         (is_connected ?l1 - location ?l2 - location) ;Whether two locations are connected or not.
         (need_image ?l - location ?i - image) ;This location needs take an image
@@ -38,7 +38,7 @@
     )
 
     ;-------------------------------
-    ; land and deploy
+    ; land
     ; -------------------------------
     ;Before the lander landing the lander and the rover are not anywhere
     ;This should be the first action for an undeployed rover
@@ -55,7 +55,13 @@
             (on_position ?lan ?l)
         )
     )
-
+    
+    ;-------------------------------
+    ; deploy rover
+    ; ----------
+    ; New added as we need to describe the deployment process of the rover.
+    ; Because this action need the astronaut to be at the docking bay and the lander is landed.
+    ; While the land action don't need the astronaut to be at the docking bay.  
     (:action rover_deploy
         :parameters (?r - rover ?lan - lander ?l - location ?a - astronaut ?doc - docking_bay)
         :precondition (and 
@@ -159,8 +165,7 @@
     ;-------------------------------
     ; transmit data back to lander
     ; -------------------------------
-    ; Though there seems no need to specify which lander receive the data
-    ; For precise describe we still record it.
+    ; Only when the astronaut is at the control room
     (:action transmit_data
         :parameters (?r - rover ?d - data ?lan - lander ?a - astronaut ?con - control_room)
         :precondition (and 
@@ -182,6 +187,7 @@
     ; take sample back to lander
     ; -------------------------------
     ; Rover need to put the sample into associated lander
+    ; Only when the astronaut is at the docking bay
     (:action sample_receive
         :parameters (?lan - lander ?r - rover ?s - sample ?l - location ?a - astronaut ?doc - docking_bay)
         :precondition (and
@@ -204,6 +210,7 @@
     ;-------------------------------
     ; Astronaut move inside a lander
     ; -------------------------------
+    ; Astronaut can only move inside a lander
     (:action astronaut_move_internal
         :parameters (?a - astronaut ?lan - lander ?from - internal_area ?to - internal_area)
         :precondition 
