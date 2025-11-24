@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
     """
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Sudoku Solver — Dark Mode (Animated)")
+        self.setWindowTitle("Sudoku Solver")
         self.resize(1100, 800)
         # Thread and worker for background solving
         self.worker_thread = None
