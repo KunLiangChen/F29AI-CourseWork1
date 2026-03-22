@@ -1,4 +1,15 @@
-# F29AI Course Work 1
+<div align="center">
+  <h1>F29AI: Artificial Intelligence</h1>
+  <p><b>Heriot-Watt University | Coursework 1 Implementation (Fall 2025)</b></p>
+</div>
+
+<div align="center">
+  <img src="https://img.shields.io/badge/Heriot--Watt-F29AI-003C71?style=for-the-badge&logo=heriot-watt-university&logoColor=white" alt="HWU F29AI">
+  <img src="https://img.shields.io/badge/Python-3.7+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/PyQt5-GUI-41CD52?style=for-the-badge&logo=qt&logoColor=white" alt="PyQt5">
+  <img src="https://img.shields.io/badge/PDDL-Planning-orange?style=for-the-badge" alt="PDDL">
+  <img src="https://img.shields.io/badge/Group-11-red?style=for-the-badge" alt="Group 11">
+</div>
 
 This is an implementation of the F29AI coursework 1(Heriot-Watt University, 2025) of the group 11. The project consists of two independent projects: a **Sudoku Solver** with GUI and a **Lunar Mission Planner** using PDDL to plan.
 
